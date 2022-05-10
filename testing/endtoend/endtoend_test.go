@@ -186,6 +186,23 @@ func (r *testRunner) run() {
 		return nil
 	})
 
+	// charon nodes.
+	var charonNodes e2etypes.ComponentRunner
+	if config.CharonValidator {
+		charonNodes = components.NewCharonNodeSet(config)
+		g.Go(func() error {
+			comps := []e2etypes.ComponentRunner{beaconNodes}
+			if err := helpers.ComponentsStarted(ctx, comps); err != nil {
+				return errors.Wrap(err, "charon nodes require beacon nodes to run")
+			}
+			if err := charonNodes.Start(ctx); err != nil {
+				return errors.Wrap(err, "failed to start charon nodes")
+			}
+
+			return nil
+		})
+	}
+
 	if multiClientActive {
 		// Lighthouse Validator nodes.
 		lighthouseValidatorNodes = components.NewLighthouseValidatorNodeSet(config)
@@ -214,6 +231,9 @@ func (r *testRunner) run() {
 		}
 		if multiClientActive {
 			requiredComponents = append(requiredComponents, []e2etypes.ComponentRunner{keyGen, lighthouseNodes, lighthouseValidatorNodes}...)
+		}
+		if config.CharonValidator {
+			requiredComponents = append(requiredComponents, charonNodes)
 		}
 		ctxAllNodesReady, cancel := context.WithTimeout(ctx, allNodesStartTimeout)
 		defer cancel()
@@ -320,7 +340,7 @@ func (r *testRunner) waitUntilEpoch(ctx context.Context, e types.Epoch, conn *gr
 // waitForChainStart allows to wait up until beacon nodes are started.
 func (r *testRunner) waitForChainStart() {
 	// Sleep depending on the count of validators, as generating the genesis state could take some time.
-	time.Sleep(time.Duration(params.BeaconConfig().GenesisDelay) * time.Second)
+	time.Sleep((time.Duration(params.BeaconConfig().GenesisDelay) * time.Second) * 2)
 	beaconLogFile, err := os.Open(path.Join(e2e.TestParams.LogPath, fmt.Sprintf(e2e.BeaconNodeLogFileName, 0)))
 	require.NoError(r.t, err)
 

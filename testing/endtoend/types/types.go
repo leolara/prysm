@@ -19,6 +19,7 @@ type E2EConfig struct {
 	TestDeposits            bool
 	UseFixedPeerIDs         bool
 	UseValidatorCrossClient bool
+	CharonValidator         bool
 	EpochsToRun             uint64
 	Seed                    int64
 	TracingSinkEndpoint     string

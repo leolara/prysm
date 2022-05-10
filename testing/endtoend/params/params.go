@@ -20,6 +20,7 @@ type params struct {
 	TestShardIndex            int
 	BeaconNodeCount           int
 	LighthouseBeaconNodeCount int
+	CharonNodeCount           int
 	ContractAddress           common.Address
 	Ports                     *ports
 }
@@ -43,6 +44,9 @@ type ports struct {
 	ValidatorMetricsPort            int
 	ValidatorGatewayPort            int
 	JaegerTracingPort               int
+	CharonUDPPort                   int
+	CharonTCPPort                   int
+	CharonGatewayPort               int
 }
 
 // TestParams is the globally accessible var for getting config elements.
@@ -102,6 +106,10 @@ const (
 	ValidatorMetricsPort = ValidatorGatewayPort + portSpan
 
 	JaegerTracingPort = 9150
+
+	CharonUDPPort     = 10150
+	CharonTCPPort     = CharonUDPPort + portSpan
+	CharonGatewayPort = CharonUDPPort + 2*portSpan
 )
 
 // Init initializes the E2E config, properly handling test sharding.
@@ -140,6 +148,7 @@ func Init(beaconNodeCount int) error {
 		LogPath:         logPath,
 		TestShardIndex:  testShardIndex,
 		BeaconNodeCount: beaconNodeCount,
+		CharonNodeCount: 3,
 		Ports:           testPorts,
 	}
 	return nil
@@ -186,6 +195,7 @@ func InitMultiClient(beaconNodeCount int, lighthouseNodeCount int) error {
 		TestShardIndex:            testShardIndex,
 		BeaconNodeCount:           beaconNodeCount,
 		LighthouseBeaconNodeCount: lighthouseNodeCount,
+		CharonNodeCount:           3,
 		Ports:                     testPorts,
 	}
 	return nil
@@ -269,6 +279,18 @@ func initializeStandardPorts(shardCount, shardIndex int, ports *ports, existingR
 	if err != nil {
 		return err
 	}
+	charonUDPPort, err := port(CharonUDPPort, shardCount, shardIndex, existingRegistrations)
+	if err != nil {
+		return err
+	}
+	charonTCPPort, err := port(CharonTCPPort, shardCount, shardIndex, existingRegistrations)
+	if err != nil {
+		return err
+	}
+	charonGatewayPort, err := port(CharonGatewayPort, shardCount, shardIndex, existingRegistrations)
+	if err != nil {
+		return err
+	}
 	ports.BootNodePort = bootnodePort
 	ports.BootNodeMetricsPort = bootnodeMetricsPort
 	ports.Eth1Port = eth1Port
@@ -283,6 +305,9 @@ func initializeStandardPorts(shardCount, shardIndex int, ports *ports, existingR
 	ports.PrysmBeaconNodePprofPort = beaconNodePprofPort
 	ports.ValidatorMetricsPort = validatorMetricsPort
 	ports.ValidatorGatewayPort = validatorGatewayPort
+	ports.CharonUDPPort = charonUDPPort
+	ports.CharonTCPPort = charonTCPPort
+	ports.CharonGatewayPort = charonGatewayPort
 	ports.JaegerTracingPort = jaegerTracingPort
 	return nil
 }
