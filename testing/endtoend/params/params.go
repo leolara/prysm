@@ -47,6 +47,7 @@ type ports struct {
 	CharonUDPPort                   int
 	CharonTCPPort                   int
 	CharonGatewayPort               int
+	CharonBootnodePort              int
 }
 
 // TestParams is the globally accessible var for getting config elements.
@@ -107,9 +108,10 @@ const (
 
 	JaegerTracingPort = 9150
 
-	CharonUDPPort     = 10150
-	CharonTCPPort     = CharonUDPPort + portSpan
-	CharonGatewayPort = CharonUDPPort + 2*portSpan
+	CharonUDPPort      = 10150
+	CharonTCPPort      = CharonUDPPort + portSpan
+	CharonGatewayPort  = CharonUDPPort + 2*portSpan
+	CharonBootnodePort = CharonUDPPort + 3*portSpan
 )
 
 // Init initializes the E2E config, properly handling test sharding.
@@ -148,7 +150,7 @@ func Init(beaconNodeCount int) error {
 		LogPath:         logPath,
 		TestShardIndex:  testShardIndex,
 		BeaconNodeCount: beaconNodeCount,
-		CharonNodeCount: 3,
+		CharonNodeCount: 4,
 		Ports:           testPorts,
 	}
 	return nil
@@ -195,7 +197,7 @@ func InitMultiClient(beaconNodeCount int, lighthouseNodeCount int) error {
 		TestShardIndex:            testShardIndex,
 		BeaconNodeCount:           beaconNodeCount,
 		LighthouseBeaconNodeCount: lighthouseNodeCount,
-		CharonNodeCount:           3,
+		CharonNodeCount:           4,
 		Ports:                     testPorts,
 	}
 	return nil
@@ -291,6 +293,10 @@ func initializeStandardPorts(shardCount, shardIndex int, ports *ports, existingR
 	if err != nil {
 		return err
 	}
+	charonBootnodePort, err := port(CharonBootnodePort, shardCount, shardIndex, existingRegistrations)
+	if err != nil {
+		return err
+	}
 	ports.BootNodePort = bootnodePort
 	ports.BootNodeMetricsPort = bootnodeMetricsPort
 	ports.Eth1Port = eth1Port
@@ -308,6 +314,7 @@ func initializeStandardPorts(shardCount, shardIndex int, ports *ports, existingR
 	ports.CharonUDPPort = charonUDPPort
 	ports.CharonTCPPort = charonTCPPort
 	ports.CharonGatewayPort = charonGatewayPort
+	ports.CharonBootnodePort = charonBootnodePort
 	ports.JaegerTracingPort = jaegerTracingPort
 	return nil
 }

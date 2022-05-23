@@ -1,1 +1,16 @@
-exports_files(["charon"])
+exports_files([
+    "charon",
+    "cluster/cluster-lock.json",
+    "cluster/node0/keystore-0.json",
+    "cluster/node0/keystore-0.txt",
+    "cluster/node0/p2pkey",
+    "cluster/node1/keystore-0.json",
+    "cluster/node1/keystore-0.txt",
+    "cluster/node1/p2pkey",
+    "cluster/node2/keystore-0.json",
+    "cluster/node2/keystore-0.txt",
+    "cluster/node2/p2pkey",
+    "cluster/node3/keystore-0.json",
+    "cluster/node3/keystore-0.txt",
+    "cluster/node3/p2pkey",
+])

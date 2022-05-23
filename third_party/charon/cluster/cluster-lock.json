@@ -1,0 +1,52 @@
+{
+ "cluster_definition": {
+  "name": "local",
+  "operators": [
+   {
+    "address": "",
+    "enr": "enr:-Iu4QAOXGNPOGW0fL5ITAUD7166P7l-ojhmWJzYUocfbNTkOMv6qErpIcvrvLOHKWNZchmBVPeddfFrpfNwNBrF3no-AgmlkgnY0gmlwhH8AAAGJc2VjcDI1NmsxoQMwcWTOGGTvdnCOS0zMYF1R1zZ48whqKu7PEceowqHiLYN0Y3CCPoGDdWRwgj6C",
+    "nonce": 0,
+    "enr_signature": null
+   },
+   {
+    "address": "",
+    "enr": "enr:-Iu4QJmgvChpCDj6CMLfAcsHcK6uUssp4syld56IFxEN4qg2FUtsTKo3S6NlVgYC4maJfJ5a1eOidIh1QQAF66zWaTOAgmlkgnY0gmlwhH8AAAGJc2VjcDI1NmsxoQNURMqbfF-lrtwc_qKsZJXv15-xayn4dT0CpbGOUdCwToN0Y3CCPoODdWRwgj6E",
+    "nonce": 0,
+    "enr_signature": null
+   },
+   {
+    "address": "",
+    "enr": "enr:-Iu4QE80ul6BroAO_Vdb5UJ_g_k_1doQROD1BXOrF7TlzL96dvBgZhEfdrVzXuwEeMt8_oxh9GU0J5C3MXZk5_IGSFaAgmlkgnY0gmlwhH8AAAGJc2VjcDI1NmsxoQPSsnfmwAOOC4S6SzpV9B6ZTTBG0zfVueHCxl2O3RqCrIN0Y3CCPoWDdWRwgj6G",
+    "nonce": 0,
+    "enr_signature": null
+   },
+   {
+    "address": "",
+    "enr": "enr:-Iu4QBUyXW1CKCtRl9vpfE7z3Ob7jkd6oGSj6Tv-hQC-04uoX9x6Tu4K7sYK4mIPaZPicfD8RBCCj6N_nqdcb8n0w1uAgmlkgnY0gmlwhH8AAAGJc2VjcDI1NmsxoQIEaaDP3aBrrPfEa0tcAcG-gd_yyKnEp6kjv-xiK6At_IN0Y3CCPoeDdWRwgj6I",
+    "nonce": 0,
+    "enr_signature": null
+   }
+  ],
+  "uuid": "DF044BC9-359D-358B-542E-2B8BD039FC77",
+  "version": "v1.0.0",
+  "num_validators": 1,
+  "threshold": 3,
+  "dkg_algorithm": "default",
+  "fork_version": "",
+  "definition_hash": "Y9IZ1PbAvBkXOM10y2WVUp1dYt+3eFAR+oKjqqWTNBQ=",
+  "operator_signatures": null
+ },
+ "distributed_validators": [
+  {
+   "distributed_public_key": "0xa99a76ed7796f7be22d5b7e85deeb7c5677e88e511e0b337618f8c4eb61349b4bf2d153f649f7b53359fe8b94a38e44c",
+   "public_shares": [
+    "sSzVCqYBE/dZh9Y3fKa61UZXOwqMLk+kHRcmdtBVcWqRMygGXbqctGr3VHaVxwS9",
+    "ssHHQJUwPWUbSc7s/WL4YqtBrHU3gJeFMjlb82oaXOiTw/6EXFDZDxw9YM8HG32t",
+    "kX3G1hAutnU3L4N+5jCa9sXBpVs3Lnsu8feDHHg7A/MGyR66el3A3ndV3dNcDnWm",
+    "kzkdprssly3zXVzGQhnrzYCd9anY/dX4h5OsrnQB+KlKgS9yAvLwsJQeNFUQ8c1Z"
+   ]
+  }
+ ],
+ "signature_aggregate": null,
+ "lock_hash": "gPUy6aJIfBKIsNnQWJlOP7eCyngssNfKS1dgv7ZCQAY="
+}
