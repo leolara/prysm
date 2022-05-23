@@ -25,19 +25,15 @@ const charonPath = "/charon_test"
 
 type CharonCluster struct {
 	e2etypes.ComponentRunner
-	config            *e2etypes.E2EConfig
-	started           chan struct{}
-	valClientIdx      int
-	validatorOffset   int
-	validatorsPerNode int
+	config  *e2etypes.E2EConfig
+	started chan struct{}
 }
 
 // NewCharonCluster creates and returns a charon cluster.
-func NewCharonCluster(config *e2etypes.E2EConfig, valClientIdx int) *CharonCluster {
+func NewCharonCluster(config *e2etypes.E2EConfig) *CharonCluster {
 	return &CharonCluster{
-		config:       config,
-		valClientIdx: valClientIdx,
-		started:      make(chan struct{}, 1),
+		config:  config,
+		started: make(chan struct{}, 1),
 	}
 }
 
@@ -47,11 +43,6 @@ func (s *CharonCluster) Start(ctx context.Context) error {
 	if err != nil {
 		panic(errors.Wrap(err, "charon copying files"))
 	}
-
-	validatorNum := int(params.BeaconConfig().MinGenesisActiveValidatorCount)
-	beaconNodeNum := e2e.TestParams.BeaconNodeCount + e2e.TestParams.LighthouseBeaconNodeCount
-	s.validatorsPerNode = validatorNum / beaconNodeNum
-	s.validatorOffset = s.validatorsPerNode * s.valClientIdx
 
 	// launch bootnode
 	bootnodes := make([]e2etypes.ComponentRunner, 1)
@@ -267,7 +258,7 @@ func (v *CharonNode) getArgsRun() []string {
 	return []string{
 		"run",
 		fmt.Sprintf("--%s=%s", "lock-file", path.Join(getCharonClusterPath(), "cluster", "cluster-lock.json")),
-		fmt.Sprintf("--%s=localhost:%d", "beacon-node-endpoint", beaconPort),
+		fmt.Sprintf("--%s=http://localhost:%d", "beacon-node-endpoint", beaconPort),
 		fmt.Sprintf("--%s=localhost:%d", "validator-api-address", e2e.TestParams.Ports.CharonGatewayPort+charonIdx),
 		fmt.Sprintf("--%s=localhost:%d", "p2p-tcp-address", e2e.TestParams.Ports.CharonTCPPort+charonIdx),
 		fmt.Sprintf("--%s=localhost:%d", "p2p-udp-address", e2e.TestParams.Ports.CharonUDPPort+charonIdx),

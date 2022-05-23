@@ -189,7 +189,7 @@ func (r *testRunner) run() {
 	// charon nodes.
 	var charonNodes e2etypes.ComponentRunner
 	if config.CharonValidator {
-		charonNodes = components.NewCharonNodeSet(config)
+		charonNodes = components.NewCharonCluster(config)
 		g.Go(func() error {
 			comps := []e2etypes.ComponentRunner{beaconNodes}
 			if err := helpers.ComponentsStarted(ctx, comps); err != nil {
