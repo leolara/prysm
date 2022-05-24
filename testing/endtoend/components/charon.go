@@ -235,6 +235,10 @@ func (v *CharonNode) Start(ctx context.Context) error {
 	cmd.Stderr = stderr
 
 	log.Infof("Starting charon node %d with flags: %s %s and output to %s %s", charonIdx, binaryPath, strings.Join(args, " "), stdoutFile, stderrFile)
+	_, err = io.WriteString(stderr, fmt.Sprintf("Starting charon node %d with flags: %s %s and output to %s %s", charonIdx, binaryPath, strings.Join(args, " "), stdoutFile, stderrFile))
+	if err != nil {
+		return err
+	}
 	if err = cmd.Start(); err != nil {
 		return err
 	}
@@ -262,6 +266,7 @@ func (v *CharonNode) getArgsRun() []string {
 		fmt.Sprintf("--%s=localhost:%d", "validator-api-address", e2e.TestParams.Ports.CharonGatewayPort+charonIdx),
 		fmt.Sprintf("--%s=localhost:%d", "p2p-tcp-address", e2e.TestParams.Ports.CharonTCPPort+charonIdx),
 		fmt.Sprintf("--%s=localhost:%d", "p2p-udp-address", e2e.TestParams.Ports.CharonUDPPort+charonIdx),
+		fmt.Sprintf("--%s=localhost:%d", "monitoring-address", 16000+charonIdx),
 		fmt.Sprintf("--%s=http://127.0.0.1:%d/enr", "p2p-bootnodes", e2e.TestParams.Ports.CharonBootnodePort),
 		fmt.Sprintf("--%s=%s", "data-dir", path.Join(getCharonClusterPath(), "cluster", fmt.Sprintf("node%d", charonIdx))),
 		//	fmt.Sprintf("--%s=%s", "p2p-external-hostname", fmt.Sprintf("node%d", charonIdx)),
@@ -346,7 +351,7 @@ func (v *CharonLHVCNode) Start(ctx context.Context) error {
 		"--init-slashing-protection",
 		fmt.Sprintf("--datadir=%s", kPath),
 		fmt.Sprintf("--testnet-dir=%s", testNetDir),
-		fmt.Sprintf("--beacon-nodes=http://localhost:%d", e2e.TestParams.Ports.CharonGatewayPort+charonIdx),
+		fmt.Sprintf("--beacon-nodes=http://localhost:%d/", e2e.TestParams.Ports.CharonGatewayPort+charonIdx),
 	}
 
 	cmd := exec.CommandContext(ctx, binaryPath, args...) // #nosec G204 -- Safe
@@ -363,6 +368,10 @@ func (v *CharonLHVCNode) Start(ctx context.Context) error {
 	cmd.Stderr = stderr
 
 	log.Infof("Starting charon lighthouse validator client %d with flags: %s %s", charonIdx, binaryPath, strings.Join(args, " "))
+	_, err = io.WriteString(stderr, fmt.Sprintf("Starting charon lighthouse validator client %d with flags: %s %s\n", charonIdx, binaryPath, strings.Join(args, " ")))
+	if err != nil {
+		return err
+	}
 	if err = cmd.Start(); err != nil {
 		return err
 	}

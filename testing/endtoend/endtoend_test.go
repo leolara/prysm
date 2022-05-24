@@ -195,6 +195,7 @@ func (r *testRunner) run() {
 			if err := helpers.ComponentsStarted(ctx, comps); err != nil {
 				return errors.Wrap(err, "charon nodes require beacon nodes to run")
 			}
+			time.Sleep(2 * time.Minute)
 			if err := charonNodes.Start(ctx); err != nil {
 				return errors.Wrap(err, "failed to start charon nodes")
 			}
