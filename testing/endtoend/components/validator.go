@@ -149,11 +149,17 @@ func (v *ValidatorNode) Start(ctx context.Context) error {
 	if !v.config.UsePrysmShValidator {
 		args = append(args, features.E2EValidatorFlags...)
 	}
+	actualOffset := offset
+	actualValidatorNum := validatorNum
+	if v.config.CharonValidator && actualOffset == 0 {
+		actualOffset += 1
+		actualValidatorNum -= 1
+	}
 	if v.config.UseWeb3RemoteSigner {
 		args = append(args, fmt.Sprintf("--%s=http://localhost:%d", flags.Web3SignerURLFlag.Name, Web3RemoteSignerPort))
 		// Write the pubkeys as comma seperated hex strings with 0x prefix.
 		// See: https://docs.teku.consensys.net/en/latest/HowTo/External-Signer/Use-External-Signer/
-		_, pubs, err := interop.DeterministicallyGenerateKeys(uint64(offset), uint64(validatorNum))
+		_, pubs, err := interop.DeterministicallyGenerateKeys(uint64(actualOffset), uint64(actualValidatorNum))
 		if err != nil {
 			return err
 		}
@@ -165,8 +171,8 @@ func (v *ValidatorNode) Start(ctx context.Context) error {
 	} else {
 		// When not using remote key signer, use interop keys.
 		args = append(args,
-			fmt.Sprintf("--%s=%d", flags.InteropNumValidators.Name, validatorNum),
-			fmt.Sprintf("--%s=%d", flags.InteropStartIndex.Name, offset))
+			fmt.Sprintf("--%s=%d", flags.InteropNumValidators.Name, actualValidatorNum),
+			fmt.Sprintf("--%s=%d", flags.InteropStartIndex.Name, actualOffset))
 	}
 	args = append(args, config.ValidatorFlags...)
 
