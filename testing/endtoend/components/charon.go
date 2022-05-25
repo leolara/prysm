@@ -319,15 +319,6 @@ func (v *CharonLHVCNode) Start(ctx context.Context) error {
 		return errors.New(" lighthouse validator binary not found")
 	}
 
-	err := v.importKey()
-	if err != nil {
-		return err
-	}
-	err = v.prepareTestnetDir()
-	if err != nil {
-		return err
-	}
-
 	charonIdx := v.charonIdx
 
 	// Write stdout and stderr to log files.
@@ -339,6 +330,15 @@ func (v *CharonLHVCNode) Start(ctx context.Context) error {
 		return err
 	}
 	stderr, err := os.Create(stderrFile)
+	if err != nil {
+		return err
+	}
+
+	err = v.prepareTestnetDir()
+	if err != nil {
+		return err
+	}
+	err = v.importKey(ctx, stdout, stderr)
 	if err != nil {
 		return err
 	}
@@ -387,45 +387,47 @@ func (v *CharonLHVCNode) Started() <-chan struct{} {
 	return v.started
 }
 
-func (v *CharonLHVCNode) importKey() error {
-	pubKeys := []string{
-		"b12cd50aa60113f75987d6377ca6bad546573b0a8c2e4fa41d172676d055716a913328065dba9cb46af7547695c704bd",
-		"b2c1c74095303d651b49ceecfd62f862ab41ac753780978532395bf36a1a5ce893c3fe845c50d90f1c3d60cf071b7dad",
-		"917dc6d6102eb675372f837ee6309af6c5c1a55b372e7b2ef1f7831c783b03f306c91eba7a5dc0de7755ddd35c0e75a6",
-		"93391da6bb2c972df35d5cc64219ebcd809df5a9d8fdd5f88793acae7401f8a94a812f7202f2f0b0941e345510f1cd59",
+func (v *CharonLHVCNode) importKey(ctx context.Context, stdout *os.File, stderr *os.File) error {
+	binaryPath, found := bazel.FindBinary("external/lighthouse", "lighthouse")
+	if !found {
+		log.Info(binaryPath)
+		log.Error("lighthouse validator binary not found")
+		return errors.New(" lighthouse validator binary not found")
 	}
 
 	charonIdx := v.charonIdx
 
+	kPath := path.Join(getCharonClusterPath(), fmt.Sprintf("lh%d", charonIdx), "d")
 	testNetDir := path.Join(getCharonClusterPath(), fmt.Sprintf("lh%d", charonIdx), "tn")
-
-	secretsPath := filepath.Join(testNetDir, "secrets")
-	keystorePath := filepath.Join(testNetDir, "validators", "0x"+pubKeys[charonIdx])
-
-	err := file.MkdirAll(secretsPath)
-	if err != nil {
-		return err
-	}
-	err = file.MkdirAll(keystorePath)
-	if err != nil {
-		return err
-	}
 
 	passwordSrcFilename := path.Join(getCharonClusterPath(), fmt.Sprintf("cluster/node%d/keystore-0.txt", charonIdx))
 	keystoreSrcFilename := path.Join(getCharonClusterPath(), fmt.Sprintf("cluster/node%d/keystore-0.json", charonIdx))
-	passwordFilename := filepath.Join(secretsPath, "0x"+pubKeys[charonIdx])
-	keystoreFilename := filepath.Join(keystorePath, "voting-keystore.json")
 
-	_, err = copyFile(passwordSrcFilename, passwordFilename)
-	if err != nil {
+	args := []string{
+		"account",
+		"validator",
+		"import",
+		"--debug-level=debug",
+		"--reuse-password",
+		fmt.Sprintf("--datadir=%s", kPath),
+		fmt.Sprintf("--testnet-dir=%s", testNetDir),
+		fmt.Sprintf("--keystore=%s", keystoreSrcFilename),
+		fmt.Sprintf("--password-file=%s", passwordSrcFilename),
+	}
+
+	cmd := exec.CommandContext(ctx, binaryPath, args...) // #nosec G204 -- Safe
+
+	cmd.Stdout = stdout
+	cmd.Stderr = stderr
+
+	log.Infof("Adding keys to charon lighthouse validator client %d with flags: %s %s", charonIdx, binaryPath, strings.Join(args, " "))
+	_, err := io.WriteString(stderr, fmt.Sprintf("Adding keys to charon lighthouse validator client %d with flags: %s %s\n", charonIdx, binaryPath, strings.Join(args, " ")))
+
+	if err = cmd.Start(); err != nil {
 		return err
 	}
-	_, err = copyFile(keystoreSrcFilename, keystoreFilename)
-	if err != nil {
-		return err
-	}
 
-	return nil
+	return cmd.Wait()
 }
 
 func (v *CharonLHVCNode) prepareTestnetDir() error {
